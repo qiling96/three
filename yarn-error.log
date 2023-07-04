@@ -1,0 +1,43 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\Jerome\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add typescript
+
+PATH: 
+  F:\NodeJS\;C\Program Files\Common Files\IntelWirelessCommon;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C\Program Files (x86)]Intel\Intel? Processor Graphics;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;F:\git\Git\cmd;F:\aomei\AOMEI\AOMEI Backupper\6.9.0;F:\NodeJS\node_modules\npm\bin;F:\git\Git\cmd;%NVM_HOME%;%NVM_SYMLINK%;F:\python3.7\Scripts\;F:\python3.7\;C:\Users\Jerome\AppData\Local\Microsoft\WindowsApps;F:\pycharm\PyCharm Community Edition 2020.2.1\bin;;C:\Users\Jerome\.dotnet\tools;C:\Users\Jerome\AppData\Local\GitHubDesktop\bin;C:\Users\Jerome\AppData\Roaming\npm;F:\VSCode\Microsoft VS Code\bin;G:\QQGameTempest\Hall.57773\;C:\Users\Jerome\AppData\Roaming\nvm;C:\Program Files\nodejs
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  16.20.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: getaddrinfo ENOTFOUND npm-registry.qunhequnhe.com
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:109:26)
+
+npm manifest: 
+  {
+    "name": "01-three_basic",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+      "dev": "parcel src/index.html",
+      "build": "parcel build src/index.html -d docs"
+    },
+    "license": "MIT",
+    "dependencies": {
+      "@types/three": "^0.152.1",
+      "parcel-bundler": "^1.12.5",
+      "sass": "^1.63.6",
+      "three": "^0.154.0",
+      "typescript": "^5.1.6"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
