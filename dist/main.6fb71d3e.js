@@ -45561,7 +45561,7 @@ Object.defineProperty(exports, "__esModule", {
  * @Author: Qiling
  * @Date: 2023-07-04 23:51:39
  * @LastEditors: qiling qiling@qunhemail.com
- * @LastEditTime: 2023-07-06 00:03:17
+ * @LastEditTime: 2023-07-06 00:12:27
  * @FilePath: \three\src\main\main.tsx
  * @Description:
  *
@@ -45598,11 +45598,11 @@ var cube = new THREE.Mesh(cubeGeometry, cubeMateril);
 var edges = new THREE.EdgesGeometry(cubeGeometry);
 // 立方体线框，不显示中间的斜线
 var edgesMaterial = new THREE.LineBasicMaterial({
-  color: 0x000000
+  color: 0xffffff
 });
 var line = new THREE.LineSegments(edges, edgesMaterial);
 var group = new THREE.Group();
-group.add(cube);
+group.add(cube, line);
 group.position.y = 5;
 scene.add(group);
 var gui = new dat.GUI();
