@@ -1,0 +1,1 @@
+{"version":3,"sources":["assets\\css\\style.scss"],"names":[],"mappings":"AAAA,EACE,QAAA,CACA,UAEF,KACE","file":"style.387a8c44.css","sourceRoot":"..\\src","sourcesContent":["* {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\nbody {\r\n  background-color: skyblue;\r\n}\r\n"]}
