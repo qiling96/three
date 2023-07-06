@@ -45561,7 +45561,7 @@ Object.defineProperty(exports, "__esModule", {
  * @Author: Qiling
  * @Date: 2023-07-04 23:51:39
  * @LastEditors: qiling qiling@qunhemail.com
- * @LastEditTime: 2023-07-06 00:12:27
+ * @LastEditTime: 2023-07-06 22:51:55
  * @FilePath: \three\src\main\main.tsx
  * @Description:
  *
@@ -45603,7 +45603,8 @@ var edgesMaterial = new THREE.LineBasicMaterial({
 var line = new THREE.LineSegments(edges, edgesMaterial);
 var group = new THREE.Group();
 group.add(cube, line);
-group.position.y = 5;
+group.position.x = 3;
+group.position.y = 3;
 scene.add(group);
 var gui = new dat.GUI();
 gui.add(group.position, "x").min(0).max(5).step(0.1);
@@ -45627,6 +45628,22 @@ gui.add(group, "visible").name("是否可见");
 gui.add(parmas, "handleClick").name("点击事件");
 var folder = gui.addFolder("设置立方体");
 folder.add(cube.material, "wireframe").name("是否显示线框");
+for (var i = 0; i < 50; i++) {
+  var gometry = new THREE.BufferGeometry();
+  var positionArray = new Float32Array(9);
+  for (var j = 0; j < 9; j++) {
+    positionArray[j] = Math.random() * 10 - 5;
+  }
+  var color = new THREE.Color(Math.random(), Math.random(), Math.random());
+  gometry.setAttribute("position", new THREE.BufferAttribute(positionArray, 3));
+  var material = new THREE.MeshBasicMaterial({
+    color: color,
+    transparent: true,
+    opacity: 0.5
+  });
+  var mesh = new THREE.Mesh(gometry, material);
+  scene.add(mesh);
+}
 // 初始化渲染器
 var renderer = new THREE.WebGLRenderer({
   antialias: true
@@ -45719,7 +45736,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "1558" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "11191" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

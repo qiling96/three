@@ -2,7 +2,7 @@
  * @Author: Qiling
  * @Date: 2023-07-04 23:51:39
  * @LastEditors: qiling qiling@qunhemail.com
- * @LastEditTime: 2023-07-06 00:12:27
+ * @LastEditTime: 2023-07-06 22:51:55
  * @FilePath: \three\src\main\main.tsx
  * @Description:
  *
@@ -36,7 +36,6 @@ const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
 const cubeMateril = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 // 根据几何材质创建物体
 const cube = new THREE.Mesh(cubeGeometry, cubeMateril);
-
 const edges = new THREE.EdgesGeometry(cubeGeometry);
 // 立方体线框，不显示中间的斜线
 const edgesMaterial = new THREE.LineBasicMaterial({
@@ -44,8 +43,9 @@ const edgesMaterial = new THREE.LineBasicMaterial({
 });
 var line = new THREE.LineSegments(edges, edgesMaterial);
 const group = new THREE.Group();
-group.add(cube,line);
-group.position.y = 5;
+group.add(cube, line);
+group.position.x = 3;
+group.position.y = 3;
 scene.add(group);
 
 const gui = new dat.GUI();
@@ -71,8 +71,26 @@ gui.add(group, "visible").name("是否可见");
 // 点击触发某个事件
 gui.add(parmas, "handleClick").name("点击事件");
 
-const folder=gui.addFolder("设置立方体");
-folder.add(cube.material,"wireframe").name("是否显示线框");
+const folder = gui.addFolder("设置立方体");
+folder.add(cube.material, "wireframe").name("是否显示线框");
+
+for (let i = 0; i < 50; i++) {
+  const gometry = new THREE.BufferGeometry();
+  const positionArray = new Float32Array(9);
+  for (let j = 0; j < 9; j++) {
+    positionArray[j] = Math.random() * 10 - 5;
+  }
+  let color = new THREE.Color(Math.random(), Math.random(), Math.random());
+  gometry.setAttribute("position", new THREE.BufferAttribute(positionArray, 3));
+  const material = new THREE.MeshBasicMaterial({
+    color: color,
+    transparent: true,
+    opacity: 0.5,
+  });
+  const mesh = new THREE.Mesh(gometry, material);
+  scene.add(mesh);
+}
+
 // 初始化渲染器
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 // 设施渲染尺寸大小
