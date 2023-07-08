@@ -2,158 +2,158 @@
  * @Author: Qiling
  * @Date: 2023-07-04 23:51:39
  * @LastEditors: qiling qiling@qunhemail.com
- * @LastEditTime: 2023-07-06 22:51:55
+ * @LastEditTime: 2023-07-08 11:39:45
  * @FilePath: \three\src\main\main.tsx
  * @Description:
  *
  */
 import * as THREE from "three";
-// 导入轨道控制器
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// 导入动画库
-import { gsap } from "gsap";
+import Stats from "stats.js";
 // 导入dat.gui
 import * as dat from "dat.gui";
+// 导入轨道控制器
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// 导入动画库
+import { gsap } from "gsap";
 
-// 初始化场景
-const scene = new THREE.Scene();
+let scene, renderer, camera, stats, controls;
+let model, skeleton, mixer, clock;
 
-// 初始化相机
-const camera = new THREE.PerspectiveCamera(
-  75, // 角度
-  window.innerWidth / window.innerHeight, // 宽高比
-  0.1, // 近平面
-  1000 // 远平面
-);
-// 设置相机位置
-camera.position.set(0, 0, 10);
+let walkAction, runAction;
+let action, settings;
 
-scene.add(camera);
+let singleStepMode = false;
+let sizeOfNextStep = 0;
+// 初始化
+init();
+function init() {
+  camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    1,
+    100
+  );
+  camera.position.set(1, 2, -3);
+  camera.lookAt(0, 1, 0);
 
-// 添加物体
-// 创建几何体
-const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-const cubeMateril = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-// 根据几何材质创建物体
-const cube = new THREE.Mesh(cubeGeometry, cubeMateril);
-const edges = new THREE.EdgesGeometry(cubeGeometry);
-// 立方体线框，不显示中间的斜线
-const edgesMaterial = new THREE.LineBasicMaterial({
-  color: 0xffffff,
-});
-var line = new THREE.LineSegments(edges, edgesMaterial);
-const group = new THREE.Group();
-group.add(cube, line);
-group.position.x = 3;
-group.position.y = 3;
-scene.add(group);
+  clock = new THREE.Clock();
 
-const gui = new dat.GUI();
-gui.add(group.position, "x").min(0).max(5).step(0.1);
-const parmas = {
-  handleClick: () => {
-    gsap.to(group.position, {
-      x: 3,
-      duration: 2,
-      ease: "bounce.in",
-      repeat: -1,
-    });
-  },
-};
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xa0a0a0);
+  scene.fog = new THREE.Fog(0xa0a0a0, 10, 50);
+  // 半球光
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 3);
+  hemiLight.position.set(0, 20, 0);
+  scene.add(hemiLight);
+  // 平行光
+  const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+  dirLight.position.set(-3, 10, -10);
+  dirLight.castShadow = true;
+  dirLight.shadow.camera.top = 2;
+  dirLight.shadow.camera.bottom = -2;
+  dirLight.shadow.camera.left = -2;
+  dirLight.shadow.camera.right = 2;
+  dirLight.shadow.camera.near = 0.1;
+  dirLight.shadow.camera.far = 40;
+  scene.add(dirLight);
+  scene.add(camera);
 
-gui
-  .addColor({ color: 0xffff00 }, "color")
-  .name("颜色")
-  .onChange((color) => {
-    cube.material.color.set(color);
-  });
-gui.add(group, "visible").name("是否可见");
-// 点击触发某个事件
-gui.add(parmas, "handleClick").name("点击事件");
-
-const folder = gui.addFolder("设置立方体");
-folder.add(cube.material, "wireframe").name("是否显示线框");
-
-for (let i = 0; i < 50; i++) {
-  const gometry = new THREE.BufferGeometry();
-  const positionArray = new Float32Array(9);
-  for (let j = 0; j < 9; j++) {
-    positionArray[j] = Math.random() * 10 - 5;
-  }
-  let color = new THREE.Color(Math.random(), Math.random(), Math.random());
-  gometry.setAttribute("position", new THREE.BufferAttribute(positionArray, 3));
-  const material = new THREE.MeshBasicMaterial({
-    color: color,
-    transparent: true,
-    opacity: 0.5,
-  });
-  const mesh = new THREE.Mesh(gometry, material);
+  // ground
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(100, 100),
+    // 反射 有光泽
+    new THREE.MeshPhongMaterial({ color: 0xcbcbcb, depthWrite: false })
+  );
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.receiveShadow = true;
   scene.add(mesh);
-}
 
-// 初始化渲染器
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-// 设施渲染尺寸大小
-renderer.setSize(window.innerWidth, window.innerHeight);
-// 将webgl中的canvas添加到body
-document.body.appendChild(renderer.domElement);
-// 使用渲染器，通过相机将场景渲染到屏幕上
+  const loader = new GLTFLoader();
+  loader.load("./models/Soldier.glb", function (gltf) {
+    model = gltf.scene;
+    scene.add(model);
 
-renderer.render(scene, camera);
+    model.traverse(function (object) {
+      if (object.isMesh) object.castShadow = true;
+    });
 
-// 创建轨道控制器
-const controls = new OrbitControls(camera, renderer.domElement);
-// 设置控制器阻尼，更真实，必须在动画循环里调用update
-controls.enableDamping = true;
+    //
 
-// 添加坐标轴辅助器
-const axesHelper = new THREE.AxesHelper(5);
-scene.add(axesHelper);
-// 设置时钟
-const clock = new THREE.Clock();
+    skeleton = new THREE.SkeletonHelper(model);
+    skeleton.visible = false;
+    scene.add(skeleton);
 
-// 设置动画
-const animate1 = gsap.to(group.position, {
-  y: 0,
-  duration: 5,
-  ease: "bounce.out",
-  repeat: -1,
-});
-// 控制动画播放和暂停
-window.addEventListener("dblclick", () => {
-  if (animate1.isActive()) {
-    animate1.pause();
-  } else {
-    animate1.resume();
-  }
-});
-// 控制全屏和退出
-window.addEventListener("keydown", (e) => {
-  if (e.key === "f") {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      document.body.requestFullscreen();
-    }
-  }
-});
+    const animations = gltf.animations;
 
-gsap.to(group.rotation, { x: Math.PI * 2, duration: 5, ease: "bounce.out" });
-function render() {
-  controls.update();
-  renderer.render(scene, camera);
-  //   请求下一帧渲染
-  requestAnimationFrame(render);
-}
-render();
-// 监听画面变化，更新渲染画面
-window.addEventListener("resize", () => {
-  // 更新渲染器尺寸
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  // 更新渲染器像素比
+    mixer = new THREE.AnimationMixer(model);
+
+    walkAction = mixer.clipAction(animations[3]);
+    runAction = mixer.clipAction(animations[1]);
+
+    action = walkAction;
+
+    createPanel();
+    activateAllActions();
+
+    animate();
+  });
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
-  // 更新摄像头
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.useLegacyLights = false;
+
+  document.body.appendChild(renderer.domElement);
+  stats = new Stats();
+  document.body.appendChild(stats.dom);
+  renderer.render(scene, camera);
+  window.addEventListener("resize", onWindowResize);
+
+  // 创建轨道控制器
+  controls = new OrbitControls(camera, renderer.domElement);
+  // 设置控制器阻尼，更真实，必须在动画循环里调用update
+  controls.enableDamping = true;
+}
+function createPanel() {
+  const panel = new dat.GUI({ width: 310 });
+  settings = {
+    切换模式: "walk",
+  };
+  panel.add(settings, "切换模式", ["walk", "run"]).onChange(function () {
+    if (settings["切换模式"] === "walk") {
+      action = walkAction;
+    } else {
+      action = runAction;
+    }
+  });
+}
+function activateAllActions() {
+  action.play();
+}
+
+function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
-  // 更新摄像机投影矩阵
   camera.updateProjectionMatrix();
-});
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  activateAllActions();
+  let mixerUpdateDelta = clock.getDelta();
+
+  if (singleStepMode) {
+    mixerUpdateDelta = sizeOfNextStep;
+    sizeOfNextStep = 0;
+  }
+
+  mixer.update(mixerUpdateDelta);
+
+  stats.update();
+
+  renderer.render(scene, camera);
+}
